@@ -1,9 +1,11 @@
-import os
 from pathlib import Path
+import os
+import numpy as np
 
 from mne.decoding import CSP
-from moabb.datasets import BNCI2014001
-from moabb.paradigms import MotorImagery
+from moabb.datasets import BNCI2014_001
+from moabb.paradigms import LeftRightImagery
+from moabb.utils import set_download_dir
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -11,24 +13,24 @@ from sklearn.pipeline import make_pipeline
 
 
 def main() -> None:
-    # Keep all downloaded files in a local cache directory.
     cache_dir = Path.cwd() / "moabb_data"
     cache_dir.mkdir(parents=True, exist_ok=True)
+    set_download_dir(str(cache_dir.resolve()))
     os.environ["MNE_DATA"] = str(cache_dir.resolve())
 
     print(f"Using cache directory: {cache_dir.resolve()}")
-    print("Loading BNCI2014001 (BCI IV 2a)...")
+    print("Loading BNCI2014_001 (BCI IV 2a)...")
 
-    dataset = BNCI2014001()
+    dataset = BNCI2014_001()
     subject = dataset.subject_list[0]
 
-    # Minimal MI preprocessing: binary MI classes, band-pass through paradigm, and resample.
-    paradigm = MotorImagery(n_classes=2, fmin=8, fmax=32, resample=128)
+    paradigm = LeftRightImagery(fmin=8, fmax=32, resample=128)
     X, y, _ = paradigm.get_data(dataset=dataset, subjects=[subject])
 
     print(f"Subject: {subject}")
     print(f"Epochs shape: {X.shape}")
-    print(f"Class distribution: {dict(zip(*__import__('numpy').unique(y, return_counts=True)))}")
+    classes, counts = np.unique(y, return_counts=True)
+    print(f"Class distribution: {dict(zip(classes, counts))}")
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
