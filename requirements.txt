@@ -1,0 +1,14 @@
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+mne
+moabb
+torch
+torchaudio
+braindecode
+onnx
+onnxruntime
+onnxscript
+statsmodels

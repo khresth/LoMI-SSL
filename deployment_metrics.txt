@@ -1,0 +1,7 @@
+Deployment metrics
+==================
+ONNX CPU latency (batch=1): 0.358 ms
+Linear probe float32 accuracy: 0.7361
+Linear probe int8 accuracy: 0.5000
+Int8 accuracy drop: 0.2361
+Peak VRAM during few-shot FT mini-run: N/A (CUDA unavailable)
