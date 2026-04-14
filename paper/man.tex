@@ -1,23 +1,19 @@
-\documentclass[12pt,a4paper]{article}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath,amssymb,amsthm,amsfonts}
+\documentclass{iopjournal}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage[margin=1in]{geometry}
-\usepackage{hyperref}
 \usepackage{siunitx}
-\usepackage{xcolor}
-\usepackage{multirow}
-
-\title{LoMI-SSL: Low-Shot Motor Imagery Self-Supervised Learning Benchmark}
-\author{Your Name\\
-Leeds, UK\\
-\texttt{your.email@leeds.ac.uk}}
-\date{April 2026}
+\usepackage{amsmath}
 
 \begin{document}
 
-\maketitle
+\articletype{Research Article}
+\title{LoMI-SSL: A Standardized Few-Shot Motor Imagery Calibration Benchmark with Compact Self-Supervised Encoders}
+
+\author{S. Khresth$^{1,*}$}
+\affil{$^1$School of Computing, University of Leeds, Leeds, United Kingdom}
+\affil{$^*$Author to whom any correspondence should be addressed.}
+\email{shkry.research@outlook.com}
+\keywords{motor imagery, brain-computer interface, self-supervised learning, few-shot learning, EEG decoding}
 
 \begin{abstract}
 Motor imagery (MI) brain-computer interfaces require extensive per-user calibration (typically 50--200 labeled trials), limiting clinical deployment. We introduce \textbf{LoMI-SSL}, the first standardized benchmark for low-shot MI calibration using self-supervised pretraining. 
@@ -68,7 +64,7 @@ Total calibration: 20/40/80/200 trials across 2 classes (10/20/40/100 min sessio
 
 \subsection{Baselines}
 
-\begin{table}[h]
+\begin{table}
 \centering
 \caption{Model specifications}
 \label{tab:models}
@@ -90,40 +86,41 @@ $\mu$/$\beta$ SSL & Same encoder, NT-Xent on 8--30\,Hz vs non-MI bands \\
 
 Table~\ref{tab:leaderboard} shows the 5-shot leaderboard. SSL methods substantially outperform EEGNet-from-scratch (+13.7\% BNCI, +7.2\% PhysionetMI) and match/exceed CSP on clean data.
 
-\begin{table}[h]
+\begin{table}
 \centering
 \caption{LoMI-SSL 5-shot leaderboard (mean accuracy \%). Bold = best per dataset.}
 \label{tab:leaderboard}
 \begin{tabular}{lcccc}
 \toprule
-Dataset & CSP & EEGNet & MaskedSSL-FT & $\mu$/$\beta$ SSL-FT \\
+Dataset & CSP+LDA & EEGNet & MaskedSSL-FT & $\mu$/$\beta$ SSL-FT \\
 \midrule
-BNCI2014-001 & \textbf{58.8} & 50.2 & \textbf{63.9} & 64.2 \\
-PhysionetMI & -- & 49.1 & \textbf{56.3} & -- \\
+BNCI2014-001 & 58.8 & 50.2 & 63.9 & \textbf{64.2} \\
+PhysionetMI (1--20) & -- & 49.1 & \textbf{56.3} & -- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}
 \centering
-\fbox{\parbox{0.8\textwidth}{\centering
-\textbf{INSERT: results_bnci_calibration_curves.png}\\
-Calibration curves across methods (BNCI2014-001). SSL converges faster at low-shot budgets.
-}}
+\includegraphics[width=0.88\textwidth]{figures/results_bnci_calibration_curves.png}
 \caption{Calibration curves (BNCI2014-001).}
 \label{fig:curves}
 \end{figure}
 
-Figure~\ref{fig:tsne} reveals $\mu$/$\beta$ SSL embeddings capture class structure but frozen-probe performance collapses, indicating projection head degradation.
+Figure~\ref{fig:mubeta_mode} shows a large gap between frozen-probe and full fine-tuning performance for $\mu$/$\beta$ SSL, indicating that adaptation of the encoder-head stack remains necessary in this EEG setting.
 
-\begin{figure}[h]
+\begin{figure}
 \centering
-\fbox{\parbox{0.8\textwidth}{\centering
-\textbf{INSERT: mu_beta_tsne_embeddings.png}\\
-t-SNE embeddings ($\mu$/$\beta$ SSL, BNCI S1 training data).
-}}
-\caption{SSL embedding analysis.}
-\label{fig:tsne}
+\includegraphics[width=0.88\textwidth]{figures/mu_beta_mode_comparison.png}
+\caption{$\mu$/$\beta$ SSL mode comparison on BNCI2014-001 (frozen probe vs full fine-tune).}
+\label{fig:mubeta_mode}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.95\textwidth]{figures/physionetmi_per_subject_5shot.png}
+\caption{PhysionetMI per-subject 5-shot results (subjects S1--S20, masked SSL full fine-tuning).}
+\label{fig:physio_subject}
 \end{figure}
 
 \section{Discussion}
@@ -142,12 +139,9 @@ LoMI-SSL reveals three key insights for MI calibration:
 
 ONNX CPU inference: \SI{0.358}{\milli\second}/trial (batch=1). Peak VRAM during few-shot fine-tuning: $<$ \SI{500}{MB} (RTX 4050). int8 quantization drop: 23.6\% (room for QAT).
 
-\begin{figure}[h]
+\begin{figure}
 \centering
-\fbox{\parbox{0.8\textwidth}{\centering
-\textbf{INSERT: deployment_latency_vram.png}\\
-ONNX CPU latency and VRAM footprint.
-}}
+\includegraphics[width=0.75\textwidth]{figures/deployment_latency_vram.png}
 \caption{Deployment metrics.}
 \label{fig:deployment}
 \end{figure}
@@ -156,51 +150,31 @@ ONNX CPU latency and VRAM footprint.
 
 Dataset scope (2 datasets) limits broad generalization claims. High per-subject variance ($\sigma=12.8\%$ PhysionetMI) reflects clinical realism but demands subject-independent methods. Future work: SNN conversion, larger multi-site corpora, real-time evaluation.
 
-\section*{Acknowledgements}
+\ack{This work used publicly available MOABB datasets and open-source tooling from MOABB and Braindecode.}
 
-This work used MOABB \cite{vandecappelle2022moabb} and Braindecode \cite{schirrmeister2024braindecode}. Compute: RTX 4050. No conflicts of interest.
+\data{All datasets used are publicly available through MOABB. Aggregated result tables used in this manuscript are bundled in \texttt{paper/data}.}
 
-\section*{Data availability statement}
+\suppdata{Code and experiment scripts are available at \url{https://github.com/khresth/LoMI-SSL}.}
 
-The data used are publicly available via MOABB. Processed results and full pipeline: \url{https://github.com/khresth/LoMI-SSL}.
-
-\section*{Code availability statement}
-
-Complete reproducible pipeline: \url{https://github.com/khresth/LoMI-SSL}.
-
-\bibliographystyle{iopart-num}
-\begin{thebibliography}{10}
-
+\section*{References}
+\begin{thebibliography}{99}
 \bibitem{lotte2018review}
-R.~Lotte et~al.
-\newblock Literature review of BCI performance.
-\newblock {\em J. Neural Eng.}, 2018.
+Lotte R, Bougrain L, Cichocki A, Clerc M, Congedo M, Rakotomamonjy A and Yger F 2018 A review of classification algorithms for EEG-based brain-computer interfaces: a 10 year update \textit{J. Neural Eng.} \textbf{15} 031005
 
 \bibitem{banville2021self}
-H.~Banville et~al.
-\newblock Self-supervised EEG representation learning.
-\newblock {\em NeurIPS Workshop}, 2021.
+Banville H, Chehab O, Hyvarinen A, Engemann D-A and Gramfort A 2021 Uncovering the structure of clinical EEG signals with self-supervised learning \textit{J. Neural Eng.} \textbf{18} 046020
 
 \bibitem{tangermann2012benchmark}
-M.~Tangermann et~al.
-\newblock Benchmark dataset for MI-BCI.
-\newblock {\em J. Neural Eng.}, 2012.
+Tangermann M, Muller K-R, Aertsen A, Birbaumer N, Braun C, Brunner C \textit{et al} 2012 Review of the BCI Competition IV datasets \textit{Front. Neurosci.} \textbf{6} 55
 
 \bibitem{goldberger2000physiobank}
-A.~Goldberger et~al.
-\newblock PhysioBank/PhysioToolkit.
-\newblock {\em Circulation}, 2000.
+Goldberger A L, Amaral L A N, Glass L, Hausdorff J M, Ivanov P C, Mark R G, Mietus J E, Moody G B, Peng C-K and Stanley H E 2000 PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals \textit{Circulation} \textbf{101} e215--e220
 
 \bibitem{vandecappelle2022moabb}
-P.~Vandecappelle et~al.
-\newblock MOABB: reliable accurate BCI research.
-\newblock {\em J. Neural Eng.}, 2022.
+Jayaram V and Barachant A 2018 MOABB: trustworthy algorithm benchmarking for BCIs \textit{J. Neural Eng.} \textbf{15} 066011
 
-\bibitem{schirrmeister2024braindecode}
-R.~T. Schirrmeister et~al.
-\newblock Braindecode: reproducible EEG decoding.
-\newblock {\em Front. Neuroinf.}, 2024.
-
+\bibitem{schirrmeister2025braindecode}
+Gemein L A W, Schirrmeister R T and Braindecode contributors 2025 Braindecode: deep learning for EEG decoding (software) \url{https://braindecode.org}
 \end{thebibliography}
 
 \end{document}
