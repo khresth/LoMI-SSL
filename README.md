@@ -11,13 +11,6 @@ LoMiSSL (Low-Mass Self-Supervised Learning) establishes the standardized benchma
 
 ## Benchmark Results
 
-'''
-$ python main.py --dataset bci4_4 --ssl lomissl --epochs 50 --shots 5
-LoMiSSL: 92.3% ± 1.2% (4 sessions, n=15)
-SimCLR:  87.4% ± 2.1% 
-Supervised: 84.1% ± 2.8%
-'''
-
                | 1-shot | 5-shot | 10-shot | Full
 LoMiSSL (this) | 78.2%  | 92.3%  | 94.1%  | 96.2%
 Baseline SSL   | 71.4%  | 87.4%  | 89.3%  | 93.1%
@@ -40,12 +33,12 @@ The benchmark aims to support rigorous and reproducible SSL/transfer research fo
 
 ## Hyperparameter Sweeps
 
-'''
+
 Optuna + Sacred: 200+ runs/dataset
 - lr: 1e-4 → 1e-2 (log)
 - batch: 32-256
 - aug_strength: 0.1-0.9
 - temperature: 0.1-1.0
 Best: lr=3e-4, batch=128, temp=0.07
-'''
+
 
